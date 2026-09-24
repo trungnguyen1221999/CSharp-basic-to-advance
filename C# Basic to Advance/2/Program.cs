@@ -1,69 +1,23 @@
-﻿// Tạo sản phẩm
-Product laptop = new Product("SP001", "Laptop Dell XPS 13", 28500000m, 5);
-Product mouse  = new Product("SP002", "Mouse Logitech MX3",  2200000m, 20);
+﻿// var p = new Product("1", "Chuột gaming", Money.VND(850_000m), stockQuantity: 50);
+ 
+// Console.WriteLine(p.Name);        // Chuột gaming
+// Console.WriteLine(p.IsInStock);   // True
+// Console.WriteLine(Product.ValidateSku("SKU-001")); // True
+ 
+// p.ReduceStock(5);
+// Console.WriteLine(p.StockQuantity); // 45
+ 
+//  //p.ReduceStock(100); // Exception: không đủ hàng
+//  //new Product("2", "", Money.VND(100m), 10); // Exception: tên rỗng
 
+//Console.WriteLine($"Convert 15000 vnd to Money object: {Money.FromString("15000 VnD").Amount}");
 
-// Tạo khách hàng
-Customer customer = new Customer("C001", "Nguyen Van A", "a@email.com", "0912345678");
-Console.WriteLine(customer.DisplayName);
-// Output: [C001] Nguyen Van A
+var vnd = new Money (15_000m, "VND");
+var usd = new Money (1, "USD");
 
+var sum = vnd.Add(new Money(5_000m, "VND"));
+Console.WriteLine(sum.Display); // 20.000 VND
 
-// Tạo đơn hàng
-Order order = new Order("ORD-001", customer.CustomerId);
-
-
-order.AddItem(new OrderItem(laptop.ProductId, laptop.Name, laptop.Price, 1));
-order.AddItem(new OrderItem(mouse.ProductId,  mouse.Name,  mouse.Price,  2));
-
-
-order.DiscountAmount = 500000m;  // giảm 500k
-
-
-Console.WriteLine($"Don hang: {order.OrderId}");
-Console.WriteLine($"Trang thai: {order.Status}");
-Console.WriteLine($"Tong tien hang: {order.SubTotal:N0} VND");
-Console.WriteLine($"Giam gia: {order.DiscountAmount:N0} VND");
-Console.WriteLine($"Tong thanh toan: {order.TotalAmount:N0} VND");
-Console.WriteLine($"So luong mat hang: {order.ItemCount}");
-
-order.RemoveItem(mouse.ProductId);
-Console.WriteLine($"So luong mat hang sau khi xoa: {order.ItemCount}");
-Console.WriteLine($"Tong tien hang sau khi xoa: {order.SubTotal:N0} VND");
-Console.WriteLine($"Tong thanh toan sau khi xoa: {order.TotalAmount:N0} VND");
-
-Console.WriteLine($"Trang thai don hang sau khi xoa: {order.Status}");
-order.UpdateStatus(Status.Processing);
-Console.WriteLine($"Trang thai don hang sau khi cap nhat: {order.Status}");
-
-order.UpdateStatus(Status.Delivered);
-Console.WriteLine($"Trang thai don hang sau khi cap nhat: {order.Status}");
-
-// Output:
-// Don hang: ORD-001
-// Trang thai: Pending
-// Tong tien hang: 32,900,000 VND
-// Giam gia: 500,000 VND
-// Tong thanh toan: 32,400,000 VND
-
-
-var supplier = new Supplier("SUP001", "ABC Supplier", "Vietnam", "contact@abc.com", "0987654321");
-Console.WriteLine(supplier.DisplayContact);
-// Output: ABC Supplier | contact@abc.com | 0987654321S
-
-var warehouse = new Warehouse();
-warehouse.AddProduct(laptop);
-warehouse.AddProduct(mouse);
-warehouse.RestockProduct(laptop.ProductId, 10);
-warehouse.RestockProduct(mouse.ProductId, 5);
-
-Console.WriteLine($"So luong san pham trong kho: {warehouse.Products.Count}");
-Console.WriteLine($"So luong Laptop trong kho: {warehouse.Products["SP001"].StockQuantity}");
-Console.WriteLine($"So luong Mouse trong kho: {warehouse.Products["SP002"].StockQuantity}");
-
-warehouse.ReserveStock(laptop.ProductId, 3);
-warehouse.RemoveProduct("213");
-
-Console.WriteLine($"So luong san pham trong kho sau khi xoa: {warehouse.Products.Count}");
-Console.WriteLine($"So luong Laptop trong kho sau khi xoa: {warehouse.Products["SP001"].StockQuantity}");
-Console.WriteLine($"So luong Mouse trong kho sau khi xoa: {warehouse.Products["SP002"].StockQuantity}");
+var difference = vnd.Subtract(new Money(5_000m, "VND"));
+Console.WriteLine(difference.Display); // 10.000 VND
+var invalidMoney = new Money(5_000m, "ABC"); // Exception: Đơn vị tiền tệ không hợp lệ: ABC.

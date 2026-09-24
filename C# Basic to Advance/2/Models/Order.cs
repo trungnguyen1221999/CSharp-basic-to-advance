@@ -4,7 +4,8 @@ public class Order
     public string CustomerId { get; init; }
     public DateTime CreatedAt { get; init; }
     public Status Status { get; set; }
-    public decimal? DiscountAmount { get; set; }
+    public Money? DiscountAmount { get; set; }
+    public Money ShippingFee { get; set; }
     public string? Notes { get; set; }
 
     public int ItemCount => _items.Count;
@@ -17,11 +18,11 @@ public class Order
 
 
     // Tổng tiền hàng (trước giảm giá)
-    public decimal SubTotal => _items.Sum(i => i.LineTotal);
+    public Money SubTotal => _items.Aggregate(Money.Zero, (sum, item) => sum.Add(item.LineTotal));
 
 
     // Tổng thanh toán
-    public decimal TotalAmount => SubTotal - (DiscountAmount ?? 0);
+    public Money TotalAmount => SubTotal.Add(ShippingFee).Subtract(DiscountAmount ?? Money.Zero);
 
 
     public Order(string orderId, string customerId)
@@ -30,7 +31,7 @@ public class Order
         CustomerId = customerId;
         CreatedAt = DateTime.UtcNow;
         Status = Status.Pending;
-        DiscountAmount = 0m;
+        DiscountAmount = Money.Zero;
     }
 
 
