@@ -1,12 +1,10 @@
-public class Order
+public class Order : BaseEntity
 {
-    public string OrderId { get; init; }
-    public string CustomerId { get; init; }
-    public DateTime CreatedAt { get; init; }
-    public Status Status { get; set; }
-    public Money? DiscountAmount { get; set; }
-    public Money ShippingFee { get; set; }
-    public string? Notes { get; set; }
+    public Guid CustomerId { get; private set; }
+    public Status Status { get; private set; }
+    public Money? DiscountAmount { get; private set; }
+    public Money ShippingFee { get; private set; }
+    public string? Notes { get; private set; }
 
     public int ItemCount => _items.Count;
     // List chứa các dòng đơn hàng
@@ -25,11 +23,9 @@ public class Order
     public Money TotalAmount => SubTotal.Add(ShippingFee).Subtract(DiscountAmount ?? Money.Zero);
 
 
-    public Order(string orderId, string customerId)
+    public Order(Guid customerId) : base()
     {
-        OrderId = orderId;
         CustomerId = customerId;
-        CreatedAt = DateTime.UtcNow;
         Status = Status.Pending;
         DiscountAmount = Money.Zero;
     }
@@ -61,6 +57,10 @@ public class Order
             default:
                 throw new ArgumentOutOfRangeException(nameof(newStatus), $"Invalid status: {newStatus}");
         }
+    }
+    public override string GetDisplayInfo()
+    {
+return $"{base.GetDisplayInfo()} | Customer: {CustomerId} | Notes: {Notes} | Total Amount: {TotalAmount:C}";
     }
 }
 

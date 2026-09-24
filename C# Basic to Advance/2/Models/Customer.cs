@@ -1,32 +1,24 @@
-public class Customer
+public class Customer : BaseEntity
 {
-    public string CustomerId { get; init; }
-    public string FullName { get; set; }
-    public string Email { get; set; }
-    public string Phone { get; set; }
-    public string Address { get; set; }
-
-
-    // Chỉ set được trong class này (gán khi tạo, không đổi sau đó)
-    public DateTime RegisteredAt { get; private set; }
+    public string FullName { get; private set; }
+    public string Email { get;  private set; }
+    public string Phone { get; private set; }
+    public string Address { get; private set; }
 
 
     // Computed: tên rút gọn để hiển thị
-    public string DisplayName => $"[{CustomerId}] {FullName}";
+    public override string GetDisplayInfo()  => $"Customer: {FullName} | Email: {Email} | Phone: {Phone} | Address: {Address}";
 
-
-    public Customer(string customerId, string fullName, string email)
+    public Customer( string fullName, string email) : base()
     {
-        CustomerId = customerId;
         FullName = fullName;
         Email = email;
-        RegisteredAt = DateTime.UtcNow;
     }
 
 
     // Overload: thêm phone
-    public Customer(string customerId, string fullName, string email, string phone)
-        : this(customerId, fullName, email)
+    public Customer(string fullName, string email, string phone)
+        : this(fullName, email)
     {
         Phone = phone;
     }
