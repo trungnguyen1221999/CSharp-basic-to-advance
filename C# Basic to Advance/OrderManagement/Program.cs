@@ -1,13 +1,12 @@
 ﻿using OrderManagement.Domain.Entities;
 
-var order = new Order ("123",Guid.NewGuid());
-var amount = 100_000m;
+var orderRepo = new PagedRepository<Order>(new());
+for (int i = 1; i <= 10; i++)
+{
+    await orderRepo.AddAsync(new Order (Guid.NewGuid().ToString(), Guid.NewGuid())); 
+}
 
-var checkoutService = new CheckoutService(new MoMoProcessor());
-var paymentResult = await checkoutService.CheckoutAsync(order, amount);
-Console.WriteLine($"Payment Successful: {paymentResult.IsSuccessful}");
-Console.WriteLine($"Message: {paymentResult.Message}");
-Console.WriteLine($"Transaction ID: {paymentResult.TransactionId}");
-Console.WriteLine($"Payment Method: {paymentResult.PaymentMethod}");
-Console.WriteLine($"Is Refunded: {paymentResult.IsRefunded}");
-Console.WriteLine($"Transaction Date: {paymentResult.TransactionDate}");
+  var page1 = await orderRepo.GetPagedAsync(page: 1, pageSize: 3);
+  Console.WriteLine(page1.TotalCount);    // 10
+  Console.WriteLine(page1.TotalPages);    // 4
+  Console.WriteLine(page1.Items.Count()); // 3

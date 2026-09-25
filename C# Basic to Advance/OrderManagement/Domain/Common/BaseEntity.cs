@@ -1,7 +1,7 @@
 namespace OrderManagement.Domain.Common;
 
 
-public abstract class BaseEntity
+public abstract class BaseEntity : IEntity
 {
     // Id dùng Guid — chuẩn cho hệ thống distributed
     public Guid Id { get; private set; }
