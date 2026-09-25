@@ -1,12 +1,20 @@
-﻿using OrderManagement.Domain.Entities;
+﻿var @event = new OrderStatusChangedEvent (
+    Guid.NewGuid(), 
+    OrderStatus.Pending, 
+    OrderStatus.Processing, 
+    DateTime.UtcNow, 
+    "Kai@gmail.com");
 
-var orderRepo = new PagedRepository<Order>(new());
-for (int i = 1; i <= 10; i++)
-{
-    await orderRepo.AddAsync(new Order (Guid.NewGuid().ToString(), Guid.NewGuid())); 
-}
 
-  var page1 = await orderRepo.GetPagedAsync(page: 1, pageSize: 3);
-  Console.WriteLine(page1.TotalCount);    // 10
-  Console.WriteLine(page1.TotalPages);    // 4
-  Console.WriteLine(page1.Items.Count()); // 3
+Console.WriteLine(@event.IsValidTransition());
+
+var event2 = new OrderStatusChangedEvent (
+    Guid.NewGuid(), 
+    OrderStatus.Pending, 
+    OrderStatus.Shipped, 
+    DateTime.UtcNow, 
+    "Kai@gmail.com");
+
+    Console.WriteLine(event2.IsValidTransition());
+
+    var retry = event2 with {ChangedAt = DateTime.UtcNow};
