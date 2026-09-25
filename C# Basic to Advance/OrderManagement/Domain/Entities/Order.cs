@@ -1,7 +1,7 @@
 using OrderManagement.Domain.Common;
 
 namespace OrderManagement.Domain.Entities;
-public class Order : BaseEntity
+public class Order : BaseEntity , IPublicOrderInfo, IInternalOrderInfo
 {
     public string OrderNumber { get; private set; }
     public decimal TotalAmount { get; private set; }
@@ -58,4 +58,14 @@ public class Order : BaseEntity
         => base.IsValid()
            && !string.IsNullOrWhiteSpace(OrderNumber)
            && CustomerId != Guid.Empty;
+
+    string IPublicOrderInfo.GetSummary()
+    {
+        return $"Customer Information Summary: {OrderNumber} | Total Amount: {TotalAmount:C} | Status: {Status}";
+    }
+
+    string IInternalOrderInfo.GetSummary()
+    {
+        return $"Internal Order Summary: {OrderNumber} | Total Amount: {TotalAmount:C} | Status: {Status} | CustomerId: {CustomerId}";
+    }
 }
