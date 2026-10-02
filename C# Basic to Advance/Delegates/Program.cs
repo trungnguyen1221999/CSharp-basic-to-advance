@@ -1,53 +1,61 @@
-﻿var order = new Order
+﻿var viporder = new Order 
 {
-    Id = 2024,
-    CustomerName = "Nguyen Van An",
-    TotalAmount = 750000m,
-    ItemCount = 5,
-    IsMember = true,
-    PromoCode = "SUMMER24"
+    Id = 1,
+    CustomerName = "John Doe",
+    TotalAmount = 2_000_005m
 };
 
+var pipeline = new NotificationPipline()
+    .AddSendEmailNotification(order => Console.WriteLine($"Sending email for order {order.Id}"))
+    .AddSendSmsNotification(order => Console.WriteLine($"Sending SMS for order {order.Id}"))
+    .AddLogToFile(order => Console.WriteLine($"Logging order {order.Id} to file"))
+    .AddSendVipNotification(order => {
+        if (order.TotalAmount > 2_000_000)
+         Console.WriteLine($"Sending VIP notification for order {order.Id}"); });
+pipeline.Execute(viporder);
+public class NotificationPipline
+{
+    private Action<Order> _sendEmailNotification;
+    private Action<Order> _sendSmsNotification; 
 
-var pipeline = new OrderProcessingPipeline()
-    // Thêm các bước validate
-    .AddValidation(o =>
-    {
-        if (o.TotalAmount <= 0)
-            throw new InvalidOperationException("Tổng tiền không hợp lệ");
-        o.ProcessingLog.Add("✓ Validate tổng tiền: OK");
-    })
-    .AddValidation(o =>
-    {
-        if (o.ItemCount == 0)
-            throw new InvalidOperationException("Đơn hàng trống");
-        o.ProcessingLog.Add($"✓ Validate số lượng ({o.ItemCount} sản phẩm): OK");
-    })
-    // Chiến lược discount: member 15%, promo 10%, cộng dồn tối đa 20%
-    .SetDiscountStrategy(o =>
-    {
-        decimal rate = 0m;
-        if (o.IsMember) rate += 0.15m;
-        if (o.PromoCode == "SUMMER24") rate += 0.10m;
-        rate = Math.Min(rate, 0.20m);  // Tối đa 20%
-        return o.TotalAmount * rate;
-    })
-    // Các bước xử lý
-    .AddProcessingStep(o =>
-    {
-        o.ProcessingLog.Add("✓ Trừ tồn kho thành công");
-    })
-    .AddProcessingStep(o =>
-    {
-        o.ProcessingLog.Add($"✓ Gửi email xác nhận tới {o.CustomerName}");
-    })
-    // Chỉ chạy với đơn hàng hợp lệ
-    .OnlyWhen(o => o.Status == "Pending" && o.TotalAmount > 0);
+    private Action<Order> _logToFile;
 
+    private Action<Order> _sendVipNotification;
 
-ProcessingResult result = pipeline.Execute(order);
+    public NotificationPipline AddSendEmailNotification(Action<Order> sendEmailNotification)
+    {
+        _sendEmailNotification += sendEmailNotification;
+        return this;
+    }
+    
+    public NotificationPipline AddSendSmsNotification(Action<Order> sendSmsNotification)
+    {
+        _sendSmsNotification += sendSmsNotification;
+        return this;
+    }
+
+    public NotificationPipline AddLogToFile(Action<Order> logToFile)
+    {
+        _logToFile += logToFile;
+        return this;
+    }
 
 
-Console.WriteLine($"Kết quả: {result.Message}");
-Console.WriteLine($"Số tiền thanh toán: {result.FinalAmount:N0} VND");
-Console.WriteLine("\nLog xử lý:");
+    public NotificationPipline AddSendVipNotification(Action<Order> sendVipNotification)
+    {
+        if (sendVipNotification != null)
+        {
+            _sendVipNotification += sendVipNotification;
+        }
+        return this;
+    }
+
+    public void Execute(Order order)
+    {
+        _sendEmailNotification?.Invoke(order);
+        _sendSmsNotification?.Invoke(order);
+        _logToFile?.Invoke(order);
+        _sendVipNotification?.Invoke(order);
+    }
+}
+
